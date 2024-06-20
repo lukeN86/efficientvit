@@ -38,7 +38,7 @@ class ClsTrainer(Trainer):
         self.test_criterion = nn.CrossEntropyLoss()
 
         if is_master():
-            self.wandb_log = wandb.init(project="efficientvit-sam", config=run_config)
+            self.wandb_log = wandb.init(project="efficientvit-cls", config=run_config)
 
     def _validate(self, model, data_loader, epoch) -> dict[str, any]:
         val_loss = AverageMeter()
