@@ -203,13 +203,16 @@ class Trainer:
 
     """ training """
 
-    def prep_for_training(self, run_config: RunConfig, ema_decay: float or None = None, amp="fp32") -> None:
+    def prep_for_training(self, run_config: RunConfig, ema_decay: float or None = None, amp="fp32", distributed=False) -> None:
         self.run_config = run_config
-        self.model = nn.parallel.DistributedDataParallel(
-            self.model.cuda(),
-            device_ids=[get_dist_local_rank()],
-            static_graph=True,
-        )
+        if distributed:
+            self.model = nn.parallel.DistributedDataParallel(
+                self.model.cuda(),
+                device_ids=[get_dist_local_rank()],
+                static_graph=True,
+            )
+        else:
+            self.model.cuda()
 
         self.run_config.global_step = 0
         self.run_config.batch_per_epoch = len(self.data_provider.train)

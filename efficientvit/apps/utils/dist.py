@@ -35,11 +35,11 @@ def dist_init() -> None:
 
 
 def get_dist_rank() -> int:
-    return int(os.environ["RANK"])
+    return int(os.environ["RANK"]) if 'RANK' in os.environ else 0
 
 
 def get_dist_size() -> int:
-    return int(os.environ["WORLD_SIZE"])
+    return int(os.environ["WORLD_SIZE"]) if 'WORLD_SIZE' in os.environ else 1
 
 
 def is_master() -> bool:
@@ -51,10 +51,13 @@ def dist_barrier() -> None:
 
 
 def get_dist_local_rank() -> int:
-    return int(os.environ["LOCAL_RANK"])
+    return int(os.environ["LOCAL_RANK"]) if 'LOCAL_RANK' in os.environ else 0
 
 
 def sync_tensor(tensor: torch.Tensor or float, reduce="mean") -> torch.Tensor or list[torch.Tensor]:
+    if get_dist_size() == 1:
+        return tensor   # Not distributed training
+
     if not isinstance(tensor, torch.Tensor):
         tensor = torch.Tensor(1).fill_(tensor).cuda()
     tensor_list = [torch.empty_like(tensor) for _ in range(get_dist_size())]

@@ -15,6 +15,7 @@ from efficientvit.apps.trainer import Trainer
 from efficientvit.apps.utils import AverageMeter, is_master, sync_tensor
 from efficientvit.clscore.trainer.utils import accuracy, apply_mixup, label_smooth
 from efficientvit.models.utils import list_join, list_mean, torch_random_choices
+import wandb
 
 __all__ = ["ClsTrainer"]
 
@@ -26,6 +27,7 @@ class ClsTrainer(Trainer):
         model: nn.Module,
         data_provider,
         auto_restart_thresh: float or None = None,
+        run_config = None
     ) -> None:
         super().__init__(
             path=path,
@@ -34,6 +36,9 @@ class ClsTrainer(Trainer):
         )
         self.auto_restart_thresh = auto_restart_thresh
         self.test_criterion = nn.CrossEntropyLoss()
+
+        if is_master():
+            self.wandb_log = wandb.init(project="efficientvit-sam", config=run_config)
 
     def _validate(self, model, data_loader, epoch) -> dict[str, any]:
         val_loss = AverageMeter()
@@ -71,6 +76,12 @@ class ClsTrainer(Trainer):
                         }
                     )
                     t.update()
+
+        if is_master():
+            self.wandb_log.log(
+                {"val_loss": val_loss.avg, "val_top1": val_top1.avg, "val_top5":  val_top5.avg}
+            )
+
         return {
             "val_top1": val_top1.avg,
             "val_loss": val_loss.avg,

@@ -26,7 +26,7 @@ parser.add_argument("--last_gamma", type=float, default=0)
 
 parser.add_argument("--auto_restart_thresh", type=float, default=1.0)
 parser.add_argument("--save_freq", type=int, default=1)
-
+parser.add_argument('--distributed', action='store_true', default=False, help='Is distributed training')
 
 def main():
     # parse args
@@ -34,7 +34,8 @@ def main():
     opt = parse_unknown_args(opt)
 
     # setup gpu and distributed training
-    setup.setup_dist_env(args.gpu)
+    if args.distributed:
+        setup.setup_dist_env(args.gpu)
 
     # setup path, update args, and save args to path
     os.makedirs(args.path, exist_ok=True)
@@ -50,7 +51,7 @@ def main():
     setup.save_exp_config(config, args.path)
 
     # setup data provider
-    data_provider = setup.setup_data_provider(config, [ImageNetDataProvider], is_distributed=True)
+    data_provider = setup.setup_data_provider(config, [ImageNetDataProvider], is_distributed=args.distributed)
 
     # setup run config
     run_config = setup.setup_run_config(config, ClsRunConfig)
@@ -65,6 +66,7 @@ def main():
         model=model,
         data_provider=data_provider,
         auto_restart_thresh=args.auto_restart_thresh,
+        run_config = run_config
     )
     # initialization
     setup.init_model(
@@ -74,13 +76,13 @@ def main():
     )
 
     # prep for training
-    trainer.prep_for_training(run_config, config["ema_decay"], args.amp)
+    trainer.prep_for_training(run_config, config["ema_decay"], args.amp, args.distributed)
 
     # resume
     if args.resume:
         trainer.load_model()
-        trainer.data_provider = setup.setup_data_provider(config, [ImageNetDataProvider], is_distributed=True)
-    else:
+        trainer.data_provider = setup.setup_data_provider(config, [ImageNetDataProvider], is_distributed=args.distributed)
+    elif args.distributed:
         trainer.sync_model()
 
     # launch training
