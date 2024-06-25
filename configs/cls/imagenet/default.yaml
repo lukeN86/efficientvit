@@ -1,6 +1,6 @@
 data_provider:
   dataset: imagenet
-  data_dir: /dataset/imagenet
+  data_dir: /mnt/data/Public_datasets/imagenet/imagenet_pytorch/
   rrc_config:
     train_interpolate: random
     test_interpolate: bicubic
