@@ -10,6 +10,7 @@
 #SBATCH --output=/home/neumalu1/data/efficientvit/efficientvit_%j.out
 # -------------------------------
 
+ml OpenMPI
 ml fosscuda/2020b
 ml Anaconda3
 
