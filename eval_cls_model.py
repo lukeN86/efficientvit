@@ -32,7 +32,7 @@ def accuracy(output: torch.Tensor, target: torch.Tensor, topk=(1,)) -> list[torc
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", type=str, default="/mnt/data/Public_datasets/imagenet/imagenet_pytorch/")
+    parser.add_argument("--path", type=str, default="/mnt/data/Public_datasets/imagenet/imagenet_pytorch/val")
     parser.add_argument("--gpu", type=str, default="all")
     parser.add_argument("--batch_size", help="batch size per gpu", type=int, default=50)
     parser.add_argument("-j", "--workers", help="number of workers", type=int, default=10)
