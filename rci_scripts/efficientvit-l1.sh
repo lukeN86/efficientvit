@@ -15,7 +15,7 @@ ml Anaconda3
 
 source activate efficientvit
 export OMP_NUM_THREADS=14
-torchrun --nnodes 1 --nproc_per_node=4 train_cls_model.py configs/cls/imagenet/l1.yaml --amp bf16 --distributed --path /exp/cls/imagenet/l1_r224/
+torchrun --nnodes 1 --nproc_per_node=4 train_cls_model.py configs/cls/imagenet/l1.yaml --amp bf16 --distributed --path ./exp/cls/imagenet/l1_r224/
 
 
 
